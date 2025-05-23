@@ -1,0 +1,117 @@
+import { StyleSheet } from 'react-native';
+const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      padding: 20,
+      backgroundColor: '#e8eaf6',
+    },
+    title: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      marginBottom: 20,
+      textAlign: 'center',
+      color: '#4a148c',
+    },
+    input: {
+      borderWidth: 1,
+      borderColor: '#ccc',
+      backgroundColor: '#fff',
+      borderRadius: 8,
+      padding: 12,
+      marginBottom: 16,
+    },
+    sectionTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginTop: 20,
+    marginBottom: 8,
+  },
+  group: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 16,
+  },
+  option: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 20,
+    marginBottom: 10,
+  },
+  circleOuter: {
+    height: 20,
+    width: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#333',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  circleInner: {
+    height: 10,
+    width: 10,
+    borderRadius: 5,
+    backgroundColor: '#333',
+  },
+  label: {
+    marginLeft: 8,
+    fontSize: 12,
+  },
+  picker: {
+    height: 50,
+    width: '100%',
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    marginBottom: 16,
+    backgroundColor: '#fff',
+  },
+  photoSelectionContainer: {
+     alignItems: 'center',
+     marginBottom: 20,
+     padding: 10,
+     backgroundColor: '#fff',
+    borderRadius: 8,
+     shadowColor: '#000',
+     shadowOffset: { width: 0, height: 1 },
+     shadowOpacity: 0.1,
+     shadowRadius: 2,
+     elevation: 2,
+   },
+   selectedImage: {
+     width: 150,
+     height: 150,
+     borderRadius: 75,
+     marginBottom: 15,
+     borderWidth: 2,
+     borderColor: '#ddd',
+   },
+   photoButtonsContainer: {
+     flexDirection: 'row',
+     justifyContent: 'space-around',
+     width: '100%',
+     //marginBottom: 10,
+   },
+   photoButton: {
+     //backgroundColor: '#007bff',
+     paddingVertical: 10,
+     paddingHorizontal: 15,
+     borderRadius: 5,
+     marginHorizontal: 5,
+     //flex: 1, // Para ocupar o espaço igualmente
+     alignItems: 'center',
+   },
+   photoButtonText: {
+     color: 'green',
+     fontSize: 16,
+     fontWeight: 'bold',
+   },
+   orText: {
+     marginVertical: 10,
+     fontSize: 16,
+     color: '#777',
+     fontWeight: 'bold',
+   },
+
+  });
+export default styles;
