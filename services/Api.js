@@ -1,6 +1,6 @@
 // API para comunicação com o Google Apps Script
-
-const API_URL = 'https://script.google.com/macros/s/AKfycbzFZbpJDOfUNT0A_oifstrisFR12N8H0_YYS_3D79VZ1PJkePKxeiQQPYLoIdDchVfaoQ/exec'; // Substitua se mudar o link depois
+import Constants from 'expo-constants';
+const API_URL = Constants.expoConfig.extra.googleAppsScriptUrl; // Substitua se mudar o link depois
 
 // Login
 export const loginProfessor = async (email, senha) => {

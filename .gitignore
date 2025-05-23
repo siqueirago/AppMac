@@ -37,3 +37,6 @@ yarn-error.*
 # Variaveis de ambiente
 .env
 .env.local
+.env.development
+.env.test
+.env.production
