@@ -62,3 +62,10 @@ A experiência adquirida neste processo demonstra a capacidade de integrar tecno
 Olhando para o futuro, o Sistema de Gerenciamento Escolar  possui um vasto potencial para expansão. Novas funcionalidades, como módulos de comunicação com pais, agendamento de eventos, acompanhamento financeiro simplificado, ou até mesmo integrações com outras plataformas educacionais, poderiam enriquecer ainda mais a experiência.
 
 Em suma, este projeto não é apenas um software; é uma ferramenta de transformação que promete trazer maior organização, eficiência e um suporte mais robusto para a dedicada equipe do CEI Maria Amaro Camelo, contribuindo diretamente para um ambiente educacional mais dinâmico e conectado.
+## Autor
+👨‍🎓 Júlio César Gomes Siqueira
+## Contato
+📧 [E-mail](siqueiragomes123@gmail.com)
+
+📞[Whatsaap](https://wa.me/5585981304584)
+ 
