@@ -1,11 +1,9 @@
 # Sistema de Gerenciamento Escolar - Educação infantil
-Este projeto consiste em um aplicativo mobile desenvolvido para otimizar e simplificar a gestão de alunos e o acompanhamento 
-pedagógico no **Centro de Educação Infantil (CEI) Maria Amaro Camelo**. Ele visa modernizar as operações diárias, fornecendo uma 
-ferramenta intuitiva para professores e diretores gerenciarem informações de estudantes, registrarem observações de desenvolvimento
-e acessarem dados cruciais de forma eficiente.
-A solução integra um frontend mobile com um backend flexível baseado em serviços do Google, aproveitando a familiaridade e a acessibilidade
-de ferramentas como Google Sheets e Google Drive.
+Este projeto consiste no desenvolvimento de um aplicativo mobile voltado para a otimização e simplificação da gestão de alunos e do acompanhamento pedagógico no Centro de Educação Infantil (CEI) Maria Amaro Camelo. Ele faz parte de um trabalho de extensão acadêmica exigido pela faculdade Estácio de Sá, no contexto da disciplina "Programação Para Dispositivos Móveis em Android - Com React Native", pertencente ao curso de Análise e Desenvolvimento de Sistemas.
 
+O objetivo principal da solução é modernizar as operações diárias da instituição, proporcionando uma ferramenta intuitiva para professores e diretores. Com o aplicativo, será possível gerenciar informações dos alunos, registrar observações sobre seu desenvolvimento e acessar dados essenciais de maneira eficiente e prática.
+
+Para garantir flexibilidade e acessibilidade, a arquitetura do sistema combina um frontend mobile com um backend dinâmico baseado em serviços do Google. Dessa forma, o aplicativo aproveita ferramentas familiares como Google Sheets e Google Drive, facilitando a integração e o uso no ambiente educacional.
 ## Principais Funcionalidades
 O aplicativo oferece as seguintes funcionalidades para a equipe do CEI:
 
@@ -53,7 +51,14 @@ O sistema opera em uma arquitetura de três camadas principais:
 
 ![Diagrama](https://github.com/user-attachments/assets/19ea163d-0b10-4e32-a052-c50769128bba)
 
-
-
 O aplicativo React Native envia requisições para um Web App publicado no Google Apps Script. Este Web App, por sua vez, interage diretamente
 com planilhas específicas no Google Sheets para gerenciar os dados dos alunos e professores, e com o Google Drive para armazenar e recuperar as fotos.
+## Considerações Finais
+O desenvolvimento deste projeto me proporcionou uma valiosa jornada de aprendizado e superação de desafios técnicos. Desde a configuração correta do ambiente até a gestão de variáveis sensíveis por meio dos arquivos .env e app.config.js, cada etapa foi essencial para garantir a segurança e eficiência do sistema.
+
+Além disso, a comunicação integrada com a API do Google Apps Script exigiu soluções estratégicas para assegurar um fluxo de dados confiável. A resolução de problemas comuns em ambientes React Native, como falhas de rede e inconsistências no cache do bundler, contribuiu significativamente para o fortalecimento do conhecimento técnico e a robustez da aplicação.
+
+A experiência adquirida neste processo demonstra a capacidade de integrar tecnologias diversas em um sistema coeso e funcional, evidenciando a versatilidade e adaptabilidade das soluções modernas.
+Olhando para o futuro, o Sistema de Gerenciamento Escolar  possui um vasto potencial para expansão. Novas funcionalidades, como módulos de comunicação com pais, agendamento de eventos, acompanhamento financeiro simplificado, ou até mesmo integrações com outras plataformas educacionais, poderiam enriquecer ainda mais a experiência.
+
+Em suma, este projeto não é apenas um software; é uma ferramenta de transformação que promete trazer maior organização, eficiência e um suporte mais robusto para a dedicada equipe do CEI Maria Amaro Camelo, contribuindo diretamente para um ambiente educacional mais dinâmico e conectado.
