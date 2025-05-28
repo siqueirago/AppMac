@@ -28,7 +28,8 @@ O aplicativo oferece as seguintes funcionalidades para a equipe do CEI:
 * **Relatório Geral (Acesso Diretor):**
     * Visão consolidada e acesso a dados importantes para a gestão pedagógica e administrativa.
 
-![relatorios](https://github.com/user-attachments/assets/e8ac8fcc-2f18-4d6e-92ca-c10a02fc2692)
+![relatorios](https://github.com/user-attachments/assets/9e2f467e-da0c-43ca-aba8-c2414a81dfff)
+
 
 ## Tecnologias Utilizadas
 
