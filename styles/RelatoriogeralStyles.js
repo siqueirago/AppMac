@@ -32,8 +32,15 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   infoText: {
-    fontSize: 16,
+    fontSize: 20,
     color: '#fff',
+  },
+  escolaText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#4a148c',
+    marginBottom: 10,
+    textAlign: 'center',
   },
   section: {
     backgroundColor: '#fff',
@@ -53,7 +60,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#555',
     marginBottom: 5,
-    
+  
   },
   emptyMessage: {
     fontSize: 16,

@@ -89,27 +89,25 @@ export default function RelatorioGeralScreen() {
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.title}>📝 Relatório Geral de Alunos</Text>
+      
 
-      <View style={styles.infoContainer}>
-        <Text style={styles.infoText}>
-          Total de Alunos na Escola: {relatorio.totalAlunos}</Text>
-      </View>
+
+      <Text style={styles.escolaText}>{alunos[0]?.escola}</Text>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Alunos por Sala (Geral):</Text>
+        <Text style={styles.sectionTitle}>Alunos por Sala:</Text>
         {Object.keys(relatorio.alunosPorSala).length > 0 ? (
           Object.entries(relatorio.alunosPorSala).map(([sala, quantidade]) => (
             <TouchableOpacity key={sala} onPress={() => handleSalaPress(sala)}>
-              <Text style={styles.listItem}>Sala {sala}: {quantidade} alunos   🔍</Text>
+              <Text style={styles.listItem}>🔎 Turma {alunos.find(aluno => aluno.sala === sala)?.turma}  - Sala {sala}: {quantidade} alunos</Text>
             </TouchableOpacity>
           ))
         ) : (
           <Text style={styles.emptyMessage}>Nenhuma sala encontrada.</Text>
         )}
       </View>
-
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Alunos por Turma (Geral):</Text>
+        <Text style={styles.sectionTitle}>Alunos por Turma:</Text>
         {Object.keys(relatorio.alunosPorTurma).length > 0 ? (
           Object.entries(relatorio.alunosPorTurma).map(([turma, quantidade]) => (
             <Text key={turma} style={styles.listItem}>Turma {turma}: {quantidade} alunos</Text>
@@ -119,23 +117,12 @@ export default function RelatorioGeralScreen() {
         )}
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Alunos por Turma em cada Escola:</Text>
-        {Object.keys(relatorio.escolasComTurmas).length > 0 ? (
-          Object.entries(relatorio.escolasComTurmas).map(([escola, turmas]) => (
-            <View key={escola} style={styles.schoolSection}>
-              <Text style={styles.schoolTitle}>Escola: {escola}</Text>
-              {Object.entries(turmas).map(([turma, quantidade]) => (
-                <Text key={turma} style={styles.schoolSubItem}>
-                  - Turma {turma}: {quantidade} alunos
-                </Text>
-              ))}
-            </View>
-          ))
-        ) : (
-          <Text style={styles.emptyMessage}>Nenhuma informação de escola encontrada.</Text>
-        )}
+      <View style={styles.infoContainer}>
+        <Text style={styles.infoText}>
+          Total de Alunos na Escola: {relatorio.totalAlunos}
+        </Text>
       </View>
+
     </ScrollView>
   );
 }

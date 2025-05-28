@@ -2,7 +2,7 @@
 require('dotenv').config();
 
 export default ({ config }) => {
-  console.log("No app.config.js, process.env.GOOGLE_APPS_SCRIPT_URL é:", process.env.GOOGLE_APPS_SCRIPT_URL);
+  
   return {
 
     name: "Gerenciamento Escolar",
@@ -13,7 +13,7 @@ export default ({ config }) => {
     userInterfaceStyle: "light",
     newArchEnabled: true,
     splash: {
-      image: "./assets/splash-icon.png",
+      image: "./assets/splash.png",
       resizeMode: "contain",
       backgroundColor: "#ffffff"
     },
