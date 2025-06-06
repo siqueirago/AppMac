@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#f3e5f5',
     padding: 20,
 
   },
@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
   },
   card: {
     flexDirection: 'row',
-    backgroundColor: '#f1eff2',
+    backgroundColor: '#f9f9f9',
     marginBottom: 12,
     padding: 10,
     borderRadius: 8,

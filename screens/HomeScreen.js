@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert, ImageBackground } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
+import { MaterialIcons } from '@expo/vector-icons';
 import styles from '../styles/HomeStyles';
 
 export default function HomeScreen() {
@@ -56,7 +57,7 @@ export default function HomeScreen() {
         {perfil === 'Diretor' && (
         <>
           <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('AddAlunoScreen')}>
-            <Text style={styles.buttonText}>Adicionar Aluno</Text>
+            <Text style={styles.buttonText}> Adicionar Aluno</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={navegarParaGerenciarProfessores}>
             <Text style={styles.buttonText}>Gerenciar Professores</Text>
@@ -64,11 +65,15 @@ export default function HomeScreen() {
           <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('RelatorioGeralScreen')}>
             <Text style={styles.buttonText}>Relatório Geral</Text>
           </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('RelatorioScreen')}>
+            <Text style={styles.buttonText}>Relatório por Turma</Text>
+          </TouchableOpacity>
         </>
       )}
 
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Text style={styles.logoutText}>Sair</Text>
+          {/* <Text style={styles.logoutText}>Sair</Text> */}
+          <MaterialIcons name="logout" size={30} color="red" />
         </TouchableOpacity>
       </ImageBackground>
     

@@ -48,7 +48,7 @@ export default function AnotacaoAlunoScreen() {
     labels: ['Linguagem', 'Cognição', 'Social', 'Motora'],
     datasets: [
       {
-        data: [7.0, 8.0, 10.0, 10.0], // Você pode querer atualizar isso com base nas competências reais
+        data: [5.0, 7.0, 8.0, 10.0], // Você pode querer atualizar isso com base nas competências reais
       },
     ],
   };
@@ -184,30 +184,30 @@ export default function AnotacaoAlunoScreen() {
 
       <Text style={styles.label}>Desempenho do Aluno</Text>
 
-      <BarChart
-        data={dadosDesempenho}
-        width={screenWidth - 40}
-        height={220}
-        fromZero
-        yAxisSuffix=""
-        chartConfig={{
-          backgroundColor: '#fff',
-          backgroundGradientFrom: '#f3e5f5',
-          backgroundGradientTo: '#e1bee7',
-          decimalPlaces: 1,
-          color: (opacity = 1) => `rgba(74, 20, 140, ${opacity})`,
-          labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-          style: {
-            borderRadius: 8,
-          },
-          propsForDots: {
-            r: '6',
-            strokeWidth: '2',
-            stroke: '#4a148c',
-          },
-        }}
-        style={{ marginVertical: 8, borderRadius: 8 }}
-      />
+<BarChart
+  data={dadosDesempenho}
+  width={screenWidth - 40}
+  height={220}
+  fromZero
+  yAxisSuffix=""
+  chartConfig={{
+    backgroundColor: '#ffffff', // fundo branco
+    backgroundGradientFrom: '#ffffff',
+    backgroundGradientTo: '#ffffff',
+    decimalPlaces: 1,
+    color: (opacity = 1) => `rgba(0, 51, 102, ${opacity})`, // azul escuro
+    labelColor: (opacity = 1) => `rgba(0, 51, 102, ${opacity})`, // azul escuro
+    style: {
+      borderRadius: 8,
+    },
+    propsForDots: {
+      r: '6',
+      strokeWidth: '2',
+      stroke: '#003366', // azul escuro
+    },
+  }}
+  style={{ marginVertical: 8, borderRadius: 8 }}
+/>
     </ScrollView>
   );
 }

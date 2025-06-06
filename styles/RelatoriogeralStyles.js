@@ -15,9 +15,45 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#4a148c',
     marginTop: 20,
-
-
   },
+
+  cardSala: {
+  backgroundColor: '#f9f9f9',
+  padding: 12,
+  marginVertical: 8,
+  borderRadius: 8,
+  borderColor: '#ccc',
+  borderWidth: 1,
+},
+
+cardHeader: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+},
+
+salaTexto: {
+  fontSize: 16,
+  fontWeight: 'bold',
+  color: '#4a148c',
+},
+
+escolaTexto: {
+  fontSize: 14,
+  color: '#777',
+  marginTop: 4,
+},
+
+quantidadeTexto: {
+  marginTop: 6,
+  fontSize: 15,
+  fontWeight: '500',
+  color: '#444',
+},
+
+iconeDetalhe: {
+  fontSize: 18,
+},
   title: {
     fontSize: 24,
     fontWeight: 'bold',
@@ -25,16 +61,7 @@ const styles = StyleSheet.create({
     color: '#333',
     textAlign: 'center',
   },
-  infoContainer: {
-    backgroundColor: '#4a148c',
-    padding: 15,
-    borderRadius: 5,
-    marginBottom: 15,
-  },
-  infoText: {
-    fontSize: 20,
-    color: '#fff',
-  },
+
   escolaText: {
     fontSize: 20,
     fontWeight: 'bold',
@@ -58,13 +85,32 @@ const styles = StyleSheet.create({
   },
   listItem: {
     fontSize: 16,
-    color: '#555',
+    color: '#333',
     marginBottom: 5,
   
   },
   emptyMessage: {
     fontSize: 16,
     color: '#777',
+  },
+  schoolContainer: {
+    backgroundColor: '#f9f9f9',
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+  schoolName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#4a148c',
+    marginBottom: 5,
+  },
+  schoolItem: {
+    fontSize: 16,
+    color: '#555',
+    marginBottom: 3,
   },
   schoolSection: {
     marginBottom: 10,

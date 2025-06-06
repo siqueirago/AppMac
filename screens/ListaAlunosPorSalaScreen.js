@@ -19,9 +19,9 @@ export default function ListaAlunosPorSalaScreen() {
   const { escola } = route.params;
   const [alunosDaSala, setAlunosDaSala] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState(null); // Estado para controlar a exclusão de alunos
 
-
-  const navegarParaAnotacoes = (aluno) => { 
+  const navegarParaAnotacoes = (aluno) => {
     navigation.navigate('AnotacaoAlunoScreen', { aluno });
   };
 
@@ -82,10 +82,11 @@ export default function ListaAlunosPorSalaScreen() {
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.deleteButton]}
-            onPress={() => navegarParaEdicao(item)}
+            onPress={() => navegarParaEdicao(item.id, item.nome)}
           >
             <Text style={styles.buttonText}>Excluir</Text>
           </TouchableOpacity>
+
 
         </View>
       </View>
@@ -100,7 +101,6 @@ export default function ListaAlunosPorSalaScreen() {
       </View>
     );
   }
-
   return (
     <View style={styles.container}>
       <Text style={styles.headerTitle}>{alunosDaSala[0]?.escola}</Text>
@@ -112,7 +112,7 @@ export default function ListaAlunosPorSalaScreen() {
 
       <FlatList
         data={alunosDaSala}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item, index) => (item && item.id !== undefined && item.id !== null) ? item.id.toString() : index.toString()}
         renderItem={renderItem}
         contentContainerStyle={{ paddingBottom: 20 }}
       />

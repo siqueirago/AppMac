@@ -4,6 +4,7 @@ const styles = StyleSheet.create({
       flex: 1,
       padding: 20,
       backgroundColor: '#e8eaf6',
+      endd: 20,
     },
     title: {
       fontSize: 24,
@@ -20,17 +21,17 @@ const styles = StyleSheet.create({
       padding: 12,
       marginBottom: 16,
     },
-    sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginTop: 20,
-    marginBottom: 8,
-  },
-  group: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginBottom: 16,
-  },
+    inputLabel: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      marginTop: 8,
+      marginBottom: 4,
+    },
+    group: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      marginBottom: 16,
+    },
   option: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -57,7 +58,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   picker: {
-    height: 50,
+    height: 55,
     width: '100%',
     borderColor: '#ccc',
     borderWidth: 1,
@@ -79,10 +80,10 @@ const styles = StyleSheet.create({
      elevation: 2,
    },
    selectedImage: {
-     width: 150,
-     height: 150,
-     borderRadius: 75,
-     marginBottom: 15,
+     width: 100,
+     height: 100,
+     borderRadius: 50,
+     marginBottom: 10,
      borderWidth: 2,
      borderColor: '#ddd',
    },
@@ -112,6 +113,12 @@ const styles = StyleSheet.create({
      color: '#777',
      fontWeight: 'bold',
    },
+    noImageText: {
+      fontSize: 12,
+      color: 'red',
+      textAlign: 'center',
+      
+    },
 
   });
 export default styles;

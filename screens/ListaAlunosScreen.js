@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, FlatList, ActivityIndicator, Alert, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { MaterialIcons } from '@expo/vector-icons';
 import { buscarAlunos, buscarAlunosPorSala, excluirAluno } from '../services/Api'; // Importe excluirAluno
 import styles from '../styles/ListAlunosStyles'; // Certifique-se de que este caminho está correto
 
@@ -124,16 +125,13 @@ export default function ListaAlunosScreen() {
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity 
-            style={styles.detailsButton} 
-            onPress={() => irParaDetalhes(item)}
-            disabled={deletingId !== null}
+                style={styles.detailsButton} 
+                onPress={() => irParaDetalhes(item)}
+                disabled={deletingId !== null}
           >
-            <Text style={styles.buttonText}>Anotar</Text>
+            <Text style={styles.buttonText}>Avaliar </Text>
           </TouchableOpacity>
-
-          {perfil === 'Diretor' && (
-            <>
-              <TouchableOpacity 
+          <TouchableOpacity 
                 style={styles.editButton} 
                 onPress={() => irParaEditar(item)}
                 disabled={deletingId !== null}
@@ -141,6 +139,8 @@ export default function ListaAlunosScreen() {
                 <Text style={styles.buttonText}>Editar</Text>
               </TouchableOpacity>
 
+          {perfil === 'Diretor' && (
+            <>
               <TouchableOpacity
                 style={styles.deleteButton} // Usando estilo local para exclusão
                 onPress={() => handleExcluirAluno(item.id, item.nome)}

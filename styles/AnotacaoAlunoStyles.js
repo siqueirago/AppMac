@@ -3,7 +3,7 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1, // Importante para ScrollView
     padding: 20,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#bbdeff',
   },
   card: {
     backgroundColor: '#fff',

@@ -1,9 +1,22 @@
-import React, { useState, useEffect } from 'react'; // Adicione useEffect
-import { View, Text, TextInput, Button, StyleSheet, Alert, ScrollView, Image, TouchableOpacity, ActivityIndicator } from 'react-native'; // Adicione Image, TouchableOpacity, ActivityIndicator
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  StyleSheet,
+  Alert,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+  ActivityIndicator,
+  Platform // Adicione Platform aqui se não estiver
+} from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
+import { MaterialIcons } from '@expo/vector-icons';
 import styles from '../styles/EditAlunosStyles';
-import { editarAluno, uploadFoto } from '../services/Api'; // Importe uploadFoto
-import * as ImagePicker from 'expo-image-picker'; // Importe ImagePicker
+import { editarAluno } from '../services/Api'; // REMOVA 'uploadFoto' daqui
+import * as ImagePicker from 'expo-image-picker';
 
 export default function EditAlunoScreen() {
   const route = useRoute();
@@ -14,15 +27,16 @@ export default function EditAlunoScreen() {
   const [turma, setTurma] = useState(aluno.turma);
   const [escola, setEscola] = useState(aluno.escola);
   const [sala, setSala] = useState(aluno.sala);
-  const [foto, setFoto] = useState(aluno.foto); // Estado para a URL da foto
-  const [uploading, setUploading] = useState(false); // Novo estado para controlar o carregamento da imagem
+  const [foto, setFoto] = useState(aluno.foto); // Estado para a URL da foto ATUAL (ou o URI temporário da nova foto para preview)
+  const [novaFotoBase64, setNovaFotoBase64] = useState(null); // NOVO ESTADO para o Base64 da foto recém-selecionada/tirada
+  const [uploading, setUploading] = useState(false); // Estado para controlar o carregamento/envio da imagem
 
   // Solicitar permissões de mídia ao carregar a tela
   useEffect(() => {
     (async () => {
       if (Platform.OS !== 'web') {
-        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status !== 'granted') {
+        const { status: mediaLibraryStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (mediaLibraryStatus !== 'granted') {
           Alert.alert('Permissão necessária', 'Desculpe, precisamos de permissão para acessar sua galeria!');
         }
         const { status: cameraStatus } = await ImagePicker.requestCameraPermissionsAsync();
@@ -40,31 +54,34 @@ export default function EditAlunoScreen() {
       allowsEditing: true,
       aspect: [4, 3],
       quality: 0.5, // Reduzir a qualidade para upload mais rápido
-      base64: true, // Importante para enviar como Base64 para o Apps Script
+      base64: true, // Importante para obter como Base64
     });
 
+    console.log('Resultado do ImagePicker (Galeria):', result); // Log para depuração
+
     if (!result.canceled && result.assets && result.assets.length > 0) {
-      setUploading(true);
-      try {
-        // Assume que a imagem Base64 é o primeiro asset retornado
-        const base64Img = result.assets[0].base64;
-        const uploadResult = await uploadFoto(base64Img); // Chama a função de upload
-        
-        if (uploadResult.success && uploadResult.url) {
-          setFoto(uploadResult.url); // Atualiza o estado 'foto' com a URL retornada
-          Alert.alert('Sucesso', 'Foto enviada com sucesso!');
-        } else {
-          Alert.alert('Erro', uploadResult.message || 'Falha ao enviar a foto.');
-        }
-      } catch (error) {
-        console.error("Erro ao fazer upload da imagem:", error);
-        Alert.alert('Erro', 'Não foi possível fazer upload da foto. Verifique a conexão.');
-      } finally {
-        setUploading(false);
+      const selectedAsset = result.assets[0];
+      
+      if (selectedAsset.base64) {
+        // Formata o Base64 para incluir o prefixo completo (data:image/jpeg;base64,...)
+        // Isso é importante para o Apps Script.
+        const fileType = selectedAsset.type || 'image'; // 'image' ou 'video'
+        // Tenta inferir a extensão do arquivo da URI ou assume 'jpeg'
+        const fileExtension = selectedAsset.uri ? selectedAsset.uri.split('.').pop() : 'jpeg'; 
+        const formattedBase64 = `data:${fileType}/${fileExtension};base64,${selectedAsset.base64}`;
+
+        setNovaFotoBase64(formattedBase64); // Armazena o Base64 para envio posterior
+        setFoto(selectedAsset.uri); // Define o URI local para exibição no preview
+        Alert.alert('Foto selecionada', 'A nova foto será salva ao clicar em "Salvar Alterações".');
+      } else {
+        console.error('Base64 não encontrado no asset da galeria.');
+        Alert.alert('Erro', 'Não foi possível processar a foto selecionada.');
       }
     } else if (result.canceled) {
-        // Usuário cancelou a seleção da imagem
-        Alert.alert('Cancelado', 'Seleção de imagem cancelada.');
+      Alert.alert('Cancelado', 'Seleção de imagem cancelada.');
+    } else {
+      Alert.alert('Erro', 'Não foi possível selecionar a foto. Tente novamente.');
+      console.error('Falha ao selecionar imagem da galeria:', result);
     }
   };
 
@@ -75,37 +92,39 @@ export default function EditAlunoScreen() {
       allowsEditing: true,
       aspect: [4, 3],
       quality: 0.5,
-      base64: true, // Importante para enviar como Base64
+      base64: true, // Importante para obter como Base64
     });
 
+    console.log('Resultado do ImagePicker (Câmera):', result); // Log para depuração
+
     if (!result.canceled && result.assets && result.assets.length > 0) {
-      setUploading(true);
-      try {
-        const base64Img = result.assets[0].base64;
-        const uploadResult = await uploadFoto(base64Img);
-        
-        if (uploadResult.success && uploadResult.url) {
-          setFoto(uploadResult.url);
-          Alert.alert('Sucesso', 'Foto tirada e enviada com sucesso!');
-        } else {
-          Alert.alert('Erro', uploadResult.message || 'Falha ao tirar e enviar a foto.');
-        }
-      } catch (error) {
-        console.error("Erro ao tirar e fazer upload da imagem:", error);
-        Alert.alert('Erro', 'Não foi possível tirar e fazer upload da foto. Verifique a conexão.');
-      } finally {
-        setUploading(false);
+      const selectedAsset = result.assets[0];
+      
+      if (selectedAsset.base64) {
+        const fileType = selectedAsset.type || 'image';
+        const fileExtension = selectedAsset.uri ? selectedAsset.uri.split('.').pop() : 'jpeg';
+        const formattedBase64 = `data:${fileType}/${fileExtension};base64,${selectedAsset.base64}`;
+
+        setNovaFotoBase64(formattedBase64); // Armazena o Base64 para envio posterior
+        setFoto(selectedAsset.uri); // Define o URI local para exibição no preview
+        Alert.alert('Foto capturada', 'A nova foto será salva ao clicar em "Salvar Alterações".');
+      } else {
+        console.error('Base64 não encontrado no asset da câmera.');
+        Alert.alert('Erro', 'Não foi possível processar a foto capturada.');
       }
     } else if (result.canceled) {
-        // Usuário cancelou a captura da imagem
-        Alert.alert('Cancelado', 'Captura de imagem cancelada.');
+      Alert.alert('Cancelado', 'Captura de imagem cancelada.');
+    } else {
+      Alert.alert('Erro', 'Não foi possível tirar a foto. Tente novamente.');
+      console.error('Falha ao tirar foto:', result);
     }
   };
 
-  // Função para remover a foto (opcional: apenas limpa o campo, não exclui do Drive)
+  // Função para remover a foto (apenas limpa o preview e o Base64 a ser enviado)
   const clearPhoto = () => {
-    setFoto('');
-    Alert.alert('Foto Removida', 'A foto foi removida do formulário.');
+    setFoto(''); // Limpa o preview
+    setNovaFotoBase64(null); // Garante que nenhuma nova foto será enviada
+    Alert.alert('Foto Removida', 'A foto foi removida do formulário. Salve as alterações para remover da planilha.');
   };
 
   const handleEditar = async () => {
@@ -114,20 +133,36 @@ export default function EditAlunoScreen() {
       return;
     }
 
+    setUploading(true); // Ativa o indicador de upload ao iniciar a chamada à API
     try {
-      // O 'foto' já contém a URL da imagem (ou está vazio)
-      const resultado = await editarAluno({ id: aluno.id, nome, turma, escola, sala, foto });
+      const alunoParaEditar = {
+        id: aluno.id,
+        nome,
+        turma,
+        escola,
+        sala,
+        // Se novaFotoBase64 existe, ela será enviada para o Apps Script
+        // Se não, o Apps Script vai usar o 'foto' existente (a URL que veio do aluno original)
+        fotoBase64: novaFotoBase64, // Envia o Base64 da nova foto, se houver
+        foto: novaFotoBase64 ? null : foto // Se tem nova foto Base64, foto é null. Caso contrário, envia a URL existente.
+      };
+
+      console.log('Dados enviados para editarAluno (Api.js):', alunoParaEditar); // Log para depuração
+      
+      const resultado = await editarAluno(alunoParaEditar);
 
       if (resultado.success) {
         Alert.alert('Sucesso', resultado.message, [
           { text: 'OK', onPress: () => navigation.goBack() }
         ]);
       } else {
-        Alert.alert('Erro', resultado.message);
+        Alert.alert('Erro', resultado.message || 'Ocorreu um erro ao editar o aluno.');
       }
     } catch (error) {
       console.error("Erro ao salvar alterações do aluno:", error);
-      Alert.alert('Erro', 'Erro ao editar aluno. Verifique a conexão.');
+      Alert.alert('Erro', 'Erro ao editar aluno. Verifique a conexão ou tente novamente.');
+    } finally {
+      setUploading(false); // Desativa o indicador de upload ao final da operação
     }
   };
 
@@ -135,7 +170,7 @@ export default function EditAlunoScreen() {
     <ScrollView style={styles.container}>
       <Text style={styles.title}>Editar Aluno</Text>
 
-      {/* Exibição da Foto Atual */}
+      
       <View style={styles.imageContainer}>
         {foto ? (
           <Image source={{ uri: foto }} style={styles.imagePreview} />
@@ -144,30 +179,30 @@ export default function EditAlunoScreen() {
         )}
       </View>
 
-      {/* Botões de Seleção/Captura de Imagem */}
+      
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.imageButton} onPress={pickImage} disabled={uploading}>
-          <Text style={styles.buttonText}>Escolher Foto</Text>
+          <Text style={styles.buttonText}>📂 Galeria</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.imageButton} onPress={takePhoto} disabled={uploading}>
-          <Text style={styles.buttonText}>Tirar Foto</Text>
+          <Text style={styles.buttonText}>📸 Câmera</Text>
         </TouchableOpacity>
       </View>
 
       {uploading && (
         <View style={styles.loadingOverlay}>
           <ActivityIndicator size="small" color="#0000ff" />
-          <Text style={styles.loadingText}>Enviando foto...</Text>
+          <Text style={styles.loadingText}>Enviando dados...</Text> 
         </View>
       )}
 
-      {/* Campo para exibir a URL da foto (opcional, apenas para ver) */}
+      
       <TextInput
         style={styles.input}
         placeholder="URL da Foto (Gerada automaticamente)"
-        value={foto}
-        onChangeText={setFoto} // Permite edição manual se necessário, mas geralmente é setado pelo upload
-        editable={!uploading} // Não permitir edição enquanto a foto está sendo enviada
+        value={foto} // Exibe a URL atual ou a URI local da nova foto
+        onChangeText={setFoto}
+        editable={false} // Não permitir edição manual, pois é gerada
       />
 
       {foto ? (
@@ -176,7 +211,7 @@ export default function EditAlunoScreen() {
         </TouchableOpacity>
       ) : null}
 
-      {/* Campos de Texto Existentes */}
+      
       <TextInput
         style={styles.input}
         placeholder="Nome"
@@ -206,5 +241,4 @@ export default function EditAlunoScreen() {
     </ScrollView>
   );
 }
-
 

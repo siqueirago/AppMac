@@ -13,6 +13,7 @@ import AnotacaoAlunoScreen from '../screens/AnotacaoAlunoScreen';
 import GerenciarProfessoresScreen from '../screens/GerenciarProfessoresScreen';
 import RelatorioGeralScreen from '../screens/RelatorioGeralScreen';
 import ListaAlunosPorSalaScreen from '../screens/ListaAlunosPorSalaScreen';
+import RelatorioScreen from '../screens/RelatorioScreen';
 
 
 const Stack = createStackNavigator();
@@ -58,8 +59,11 @@ export default function AppNavigator() {
         <Stack.Screen name="AlunoDetalhesScreen" component={AlunoDetalhesScreen} options={{ title: '' }} />
         <Stack.Screen name="AnotacaoAlunoScreen" component={AnotacaoAlunoScreen} options={{ title: '' }} />
         <Stack.Screen name="GerenciarProfessoresScreen" component={GerenciarProfessoresScreen} options={{ title: '' }} />
-        <Stack.Screen name="RelatorioGeralScreen" component={RelatorioGeralScreen} options={{ title: '' }} />
+        <Stack.Screen name="RelatorioGeralScreen" component={RelatorioGeralScreen} options={{ title: '📝 Relatório Geral' }} />
         <Stack.Screen name="ListaAlunosPorSalaScreen" component={ListaAlunosPorSalaScreen} options={{ title: '' }} />
+        <Stack.Screen name="RelatorioScreen" component={RelatorioScreen} options={{ title: '📊 Representação Gráfica' }} />
+
+        {/* Adicione outras telas aqui conforme necessário */}
       </Stack.Navigator>
     </NavigationContainer>
   );

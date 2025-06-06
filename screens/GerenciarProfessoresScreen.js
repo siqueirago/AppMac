@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, ActivityIndicator, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import styles from '../styles/ProfessorScreenStyles';
 import { listarProfessores, adicionarProfessor, editarProfessor, excluirProfessor } from '../services/Api';
 
 const GerenciarProfessoresScreen = () => {
@@ -65,47 +66,51 @@ const GerenciarProfessoresScreen = () => {
   };
 
   const handleEditarProfessor = (professor) => {
-    console.log('Professor para editar:', professor);
     setProfessorParaEditar(professor);
-    console.log('Professor para editar:', professor);
     setEmail(professor.email);
     setNome(professor.nome);
     setSala(professor.sala);
     setPerfil(professor.perfil);
-    setSenha(''); // Limpa a senha por segurança
+    setSenha('');
   };
 
-  const handleSalvarEdicaoProfessor = async () => {
-    if (!email || !nome || !sala || !perfil) {
-      Alert.alert('Erro', 'Por favor, preencha todos os campos.');
-      return;
-    }
+const handleSalvarEdicaoProfessor = async () => {
+  if (!email || !nome || !sala || !perfil) {
+    Alert.alert('Erro', 'Por favor, preencha todos os campos.');
+    return;
+  }
 
-    setLoading(true);
-    try {
-      const professorAtualizado = {
-        emailOriginal: professorParaEditar.email,
-        email: email,
-        senha: senha,
-        nome: nome,
-        sala: sala,
-        perfil: perfil,
-      };
-      const resposta = await editarProfessor(professorAtualizado);
+  if (!professorParaEditar || !professorParaEditar.email) {
+    Alert.alert('Erro', 'Professor selecionado para edição está inválido.');
+    return;
+  }
 
-      if (resposta.success) {
-        Alert.alert('Sucesso', 'Professor atualizado com sucesso!');
-        carregarProfessores();
-      } else {
-        Alert.alert('Erro', resposta.message || 'Erro ao atualizar professor.');
-      }
-    } catch (error) {
-      console.error("Erro ao atualizar professor:", error);
-      Alert.alert('Erro', 'Erro ao atualizar professor. Tente novamente.');
-    } finally {
-      setLoading(false);
+  setLoading(true);
+  try {
+    const professorAtualizado = {
+      emailOriginal: professorParaEditar.email.trim(),
+      email: email.trim(),
+      senha: senha,
+      nome: nome.trim(),
+      sala: sala.trim(),
+      perfil: perfil.trim(),
+    };
+
+    const resposta = await editarProfessor(professorAtualizado);
+
+    if (resposta.success) {
+      Alert.alert('Sucesso', 'Professor atualizado com sucesso!');
+      carregarProfessores();
+    } else {
+      Alert.alert('Erro', resposta.message || 'Erro ao atualizar professor.');
     }
-  };
+  } catch (error) {
+    console.error("Erro ao atualizar professor:", error);
+    Alert.alert('Erro', 'Erro ao atualizar professor. Tente novamente.');
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleExcluirProfessor = (emailProfessor) => {
     Alert.alert(
@@ -165,52 +170,70 @@ const GerenciarProfessoresScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Gerenciar Professores</Text>
+      <Text style={styles.title}>👩‍🏫 Gerenciar Professores</Text>
+      <Text style={styles.subtitle}>Adicione, edite ou exclua professores</Text>
 
       <View style={styles.formContainer}>
         <Text style={styles.formTitle}>{professorParaEditar ? 'Editar Professor' : 'Adicionar Novo Professor'}</Text>
+
+        {professorParaEditar ? (
+          <Text style={styles.readOnlyText}>Email: {email}</Text>
+        ) : (
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+        )}
+
         <TextInput
           style={styles.input}
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          editable={!professorParaEditar}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Nova Senha (opcional)"
+          placeholder={professorParaEditar ? 'Nova Senha (opcional)' : 'Senha'}
           value={senha}
           onChangeText={setSenha}
           secureTextEntry
         />
+
         <TextInput
           style={styles.input}
           placeholder="Nome"
           value={nome}
           onChangeText={setNome}
         />
+
         <TextInput
           style={styles.input}
           placeholder="Sala (ex: A, B, Todas)"
           value={sala}
           onChangeText={setSala}
         />
+
         <TextInput
           style={styles.input}
           placeholder="Perfil (Professor, Diretor)"
           value={perfil}
           onChangeText={setPerfil}
         />
+
         <TouchableOpacity
           style={professorParaEditar ? styles.saveButton : styles.addButton}
           onPress={professorParaEditar ? handleSalvarEdicaoProfessor : handleAdicionarProfessor}
         >
           <Text style={styles.buttonText}>{professorParaEditar ? 'Salvar Edição' : 'Adicionar Professor'}</Text>
         </TouchableOpacity>
+
         {professorParaEditar && (
-          <TouchableOpacity style={styles.cancelButton} onPress={() => setProfessorParaEditar(null)}>
+          <TouchableOpacity style={styles.cancelButton} onPress={() => {
+            setProfessorParaEditar(null);
+            setEmail('');
+            setSenha('');
+            setNome('');
+            setSala('');
+            setPerfil('');
+          }}>
             <Text style={styles.buttonText}>Cancelar Edição</Text>
           </TouchableOpacity>
         )}
@@ -228,97 +251,5 @@ const GerenciarProfessoresScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: '#e2c3c6',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    color: '#333',
-    textAlign: 'center',
-  },
-  formContainer: {
-    backgroundColor: '#fff',
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: '#ddd',
-  },
-  formTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#555',
-  },
-  input: {
-    height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    marginBottom: 10,
-    paddingHorizontal: 10,
-    borderRadius: 5,
-    backgroundColor: '#f9f9f9',
-  },
-  addButton: {
-    backgroundColor: '#007bff',
-    paddingVertical: 12,
-    borderRadius: 5,
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  listContainer: {
-    flex: 1,
-    backgroundColor: '#fff',
-    padding: 15,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#ddd',
-  },
-  listTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#555',
-  },
-  professorItem: {
-    padding: 10,
-    marginBottom: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  professorActions: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    marginTop: 5,
-  },
-  editButton: {
-    backgroundColor: '#28a745',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 5,
-    marginLeft: 5,
-  },
-  deleteButton: {
-    backgroundColor: '#dc3545',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 5,
-    marginLeft: 5,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
-
 export default GerenciarProfessoresScreen;
+
