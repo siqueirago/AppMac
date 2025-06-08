@@ -3,20 +3,20 @@ import {
   View,
   Text,
   TextInput,
-  Button,
-  StyleSheet,
   Alert,
   ScrollView,
   TouchableOpacity,
   Image,
   Platform,
-  ActivityIndicator
+  ActivityIndicator,
+  KeyboardAvoidingView // Adicionado para melhor UX em formulários
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
 import { adicionarAluno } from '../services/Api';
-import styles from '../styles/AlunoFromStyles';
+import styles from '../styles/AddAlunoStyles'; // Caminho para o novo arquivo de estilos
 import * as ImagePicker from 'expo-image-picker';
+import { LinearGradient } from 'expo-linear-gradient'; // Importar LinearGradient
 
 export default function AddAlunoScreen() {
   const navigation = useNavigation();
@@ -27,6 +27,7 @@ export default function AddAlunoScreen() {
   const [imageUri, setImageUri] = useState(null);
   const [imageBase64, setImageBase64] = useState('');
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [savingData, setSavingData] = useState(false); // Novo estado para o processo de salvar dados
 
   const turmas = [
     { label: 'Selecione a Turma', value: '' },
@@ -49,7 +50,7 @@ export default function AddAlunoScreen() {
     mediaTypes: ImagePicker.MediaTypeOptions.Images,
     allowsEditing: true,
     aspect: [1, 1],
-    quality: 0.3,
+    quality: 0.3, // Qualidade da imagem reduzida para upload mais rápido
     base64: true
   };
 
@@ -75,11 +76,13 @@ export default function AddAlunoScreen() {
         setImageUri(asset.uri);
         setImageBase64(asset.base64);
       } else {
-        setImageUri(null);
-        setImageBase64('');
-        Alert.alert('Cancelado', 'Nenhuma imagem foi selecionada.');
+        // Nenhuma imagem selecionada, não exibe alerta de cancelamento
+        // setImageUri(null);
+        // setImageBase64('');
+        // Alert.alert('Cancelado', 'Nenhuma imagem foi selecionada.');
       }
     } catch (error) {
+      console.error('Erro ao escolher foto da galeria:', error);
       Alert.alert('Erro', 'Não foi possível selecionar a imagem.');
     } finally {
       setUploadingImage(false);
@@ -96,11 +99,13 @@ export default function AddAlunoScreen() {
         setImageUri(asset.uri);
         setImageBase64(asset.base64);
       } else {
-        setImageUri(null);
-        setImageBase64('');
-        Alert.alert('Cancelado', 'Nenhuma imagem foi capturada.');
+        // Nenhuma imagem capturada, não exibe alerta de cancelamento
+        // setImageUri(null);
+        // setImageBase64('');
+        // Alert.alert('Cancelado', 'Nenhuma imagem foi capturada.');
       }
     } catch (error) {
+      console.error('Erro ao tirar foto:', error);
       Alert.alert('Erro', 'Não foi possível tirar a foto.');
     } finally {
       setUploadingImage(false);
@@ -109,9 +114,11 @@ export default function AddAlunoScreen() {
 
   const handleAdicionar = async () => {
     if (!nome.trim() || !turma || !escola || !sala || !imageBase64.trim()) {
-      Alert.alert('Erro', 'Preencha todos os campos e selecione uma imagem.');
+      Alert.alert('Erro', 'Preencha todos os campos e selecione uma foto do aluno.');
       return;
     }
+
+    setSavingData(true); // Inicia o estado de salvamento
 
     const alunoData = {
       nome: nome.trim(),
@@ -129,6 +136,7 @@ export default function AddAlunoScreen() {
         Alert.alert('Sucesso', resultado.message, [
           { text: 'OK', onPress: () => navigation.goBack() }
         ]);
+        // Limpar os campos após o sucesso
         setNome('');
         setTurma('');
         setEscola('');
@@ -139,110 +147,153 @@ export default function AddAlunoScreen() {
         Alert.alert('Erro', resultado.message || 'Falha ao adicionar aluno.');
       }
     } catch (error) {
-      Alert.alert('Erro', 'Ocorreu um erro ao adicionar o aluno.');
+      console.error('Erro ao adicionar aluno:', error);
+      Alert.alert('Erro', 'Ocorreu um erro ao adicionar o aluno. Verifique sua conexão.');
+    } finally {
+      setSavingData(false); // Finaliza o estado de salvamento
     }
   };
 
+  // Renderiza o grupo de rádio buttons para as salas
   const renderRadioGroup = (options, selected, onSelect) => (
-    <View style={styles.group}>
+    <View style={styles.radioGroupContainer}>
       {options.map((option) => (
         <TouchableOpacity
           key={option}
-          style={styles.option}
+          style={[
+            styles.radioOption,
+            selected === option && styles.radioOptionSelected,
+            (uploadingImage || savingData) && { opacity: 0.6 } // Desabilita visualmente
+          ]}
           onPress={() => onSelect(option)}
-          disabled={uploadingImage}
+          disabled={uploadingImage || savingData}
         >
-          <View style={styles.circleOuter}>
-            {selected === option && <View style={styles.circleInner} />}
+          <View style={[
+            styles.radioCircleOuter,
+            selected === option && styles.radioCircleOuterSelected
+          ]}>
+            {selected === option && <View style={styles.radioCircleInner} />}
           </View>
-          <Text style={styles.label}>{option}</Text>
+          <Text style={styles.radioLabel}>{option}</Text>
         </TouchableOpacity>
       ))}
     </View>
   );
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.title}>Adicionar Novo Aluno</Text>
+    <LinearGradient colors={['#4CAF50', '#2196F3']} style={styles.gradientBackground}>
+      <KeyboardAvoidingView
+        style={{ flex: 1, width: '100%' }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0} // Ajuste para iOS
+      >
+        <ScrollView contentContainerStyle={styles.scrollViewContent}>
+          <Text style={styles.title}>Cadastrar Novo Aluno</Text>
 
-      <Text style={styles.inputLabel}>Nome do Aluno</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Nome completo"
-        value={nome}
-        onChangeText={(text) => setNome((text || '').toUpperCase())}
-        editable={!uploadingImage}
-      />
+          <View style={styles.formCard}>
+            <Text style={styles.inputLabel}>Nome do Aluno</Text>
+            <TextInput
+              style={[styles.input, (uploadingImage || savingData) && { opacity: 0.6 }]}
+              placeholder="Nome completo do aluno"
+              placeholderTextColor="#888"
+              value={nome}
+              onChangeText={(text) => setNome((text || '').toUpperCase())}
+              editable={!(uploadingImage || savingData)} // Desabilita enquanto carrega/salva
+            />
 
-      <Text style={styles.inputLabel}>Turma</Text>
-      <View style={styles.pickerWrapper}>
-        <Picker
-          selectedValue={turma}
-          onValueChange={setTurma}
-          style={styles.picker}
-          enabled={!uploadingImage}
-        >
-          {turmas.map((item) => (
-            <Picker.Item key={item.value} label={item.label} value={item.value} />
-          ))}
-        </Picker>
-      </View>
+            <Text style={styles.inputLabel}>Turma</Text>
+            <View style={[styles.pickerWrapper, (uploadingImage || savingData) && { opacity: 0.6 }]}>
+              <Picker
+                selectedValue={turma}
+                onValueChange={setTurma}
+                style={styles.picker}
+                enabled={!(uploadingImage || savingData)}
+                itemStyle={{ height: 120 }} // Ajuda na visualização em algumas plataformas
+              >
+                {turmas.map((item) => (
+                  <Picker.Item key={item.value} label={item.label} value={item.value} />
+                ))}
+              </Picker>
+            </View>
 
-      <Text style={styles.inputLabel}>Escola</Text>
-      <View style={styles.pickerWrapper}>
-        <Picker
-          selectedValue={escola}
-          onValueChange={setEscola}
-          style={styles.picker}
-          enabled={!uploadingImage}
-        >
-          {escolas.map((item) => (
-            <Picker.Item key={item.value} label={item.label} value={item.value} />
-          ))}
-        </Picker>
-      </View>
+            <Text style={styles.inputLabel}>Escola</Text>
+            <View style={[styles.pickerWrapper, (uploadingImage || savingData) && { opacity: 0.6 }]}>
+              <Picker
+                selectedValue={escola}
+                onValueChange={setEscola}
+                style={styles.picker}
+                enabled={!(uploadingImage || savingData)}
+                itemStyle={{ height: 120 }}
+              >
+                {escolas.map((item) => (
+                  <Picker.Item key={item.value} label={item.label} value={item.value} />
+                ))}
+              </Picker>
+            </View>
 
-      <Text style={styles.inputLabel}>Sala</Text>
-      {renderRadioGroup(salas, sala, setSala)}
+            <Text style={styles.inputLabel}>Sala</Text>
+            {renderRadioGroup(salas, sala, setSala)}
 
-      <Text style={styles.inputLabel}>Foto do Aluno</Text>
-      <View style={styles.photoSelectionContainer}>
-        {imageUri && <Image source={{ uri: imageUri }} style={styles.selectedImage} />}
-        {!imageUri && !uploadingImage && (
-          <Text style={styles.noImageText}>Nenhuma foto selecionada</Text>
-        )}
-        {uploadingImage && (
-          <View style={localStyles.loadingContainer}>
-            <ActivityIndicator size="large" color="#0000ff" />
-            <Text style={localStyles.loadingText}>Processando imagem...</Text>
+            <Text style={styles.inputLabel}>Foto do Aluno</Text>
+            <View style={styles.photoSection}>
+              {/* Exibe a imagem selecionada ou um placeholder */}
+              {imageUri ? (
+                <Image source={{ uri: imageUri }} style={styles.selectedImage} />
+              ) : (
+                <Image
+                  source={require('../assets/usuario.png')} // Caminho para um avatar padrão
+                  style={[styles.selectedImage, { borderColor: '#ccc' }]}
+                />
+              )}
+              {/* Texto de nenhuma foto se não houver imagem e não estiver carregando */}
+              {!imageUri && !uploadingImage && (
+                <Text style={styles.noImageText}>Nenhuma foto selecionada</Text>
+              )}
+
+              {/* Botões de seleção de foto */}
+              <View style={styles.photoButtonsContainer}>
+                <TouchableOpacity
+                  style={[styles.photoButton, (uploadingImage || savingData) && { opacity: 0.6 }]}
+                  onPress={handleChoosePhoto}
+                  disabled={uploadingImage || savingData}
+                >
+                  <Text style={styles.photoButtonText}>📁 Galeria</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.photoButton, (uploadingImage || savingData) && { opacity: 0.6 }]}
+                  onPress={handleTakePhoto}
+                  disabled={uploadingImage || savingData}
+                >
+                  <Text style={styles.photoButtonText}>📸 Câmera</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* Botão principal de Salvar */}
+            <TouchableOpacity
+              style={[styles.mainButton, (uploadingImage || savingData) && { opacity: 0.6 }]}
+              onPress={handleAdicionar}
+              disabled={uploadingImage || savingData} // Desabilita o botão durante o upload ou salvamento
+            >
+              {(uploadingImage || savingData) ? (
+                <ActivityIndicator size="small" color="#ffffff" />
+              ) : (
+                <Text style={styles.mainButtonText}>Salvar Aluno</Text>
+              )}
+            </TouchableOpacity>
           </View>
-        )}
+        </ScrollView>
+      </KeyboardAvoidingView>
 
-        <View style={styles.photoButtonsContainer}>
-          <TouchableOpacity style={styles.photoButton} onPress={handleChoosePhoto} disabled={uploadingImage}>
-            <Text style={styles.photoButtonText}>📁 Galeria</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.photoButton} onPress={handleTakePhoto} disabled={uploadingImage}>
-            <Text style={styles.photoButtonText}>📸 Câmera</Text>
-          </TouchableOpacity>
+      {/* Overlay de carregamento para todo o processo */}
+      {(uploadingImage || savingData) && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color="#ffffff" />
+          <Text style={styles.loadingText}>
+            {uploadingImage ? 'Processando imagem...' : 'Salvando aluno...'}
+          </Text>
         </View>
-      </View>
-
-      <Button title="Salvar Aluno" onPress={handleAdicionar} disabled={uploadingImage} />
-    </ScrollView>
+      )}
+    </LinearGradient>
   );
 }
-
-const localStyles = StyleSheet.create({
-  loadingContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
-    marginTop: 20
-  },
-  loadingText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: '#333'
-  }
-});

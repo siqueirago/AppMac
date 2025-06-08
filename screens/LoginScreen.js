@@ -1,10 +1,21 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Platform, Alert, ActivityIndicator, Image, KeyboardAvoidingView } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Platform,
+  Alert,
+  ActivityIndicator,
+  Image,
+  KeyboardAvoidingView,
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { loginProfessor } from '../services/Api';
 import { useNavigation } from '@react-navigation/native';
 import styles from '../styles/LoginStyles';
-import LogoImage from '../assets/portfolio.png'; // Importe a sua imagem de logo
+import LogoImage from '../assets/portfolio.png';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -25,19 +36,16 @@ export default function LoginScreen() {
       console.log('Resposta COMPLETA do login:', JSON.stringify(resposta, null, 2));
 
       if (resposta.success) {
-
         await AsyncStorage.setItem('perfilUsuario', resposta.perfil || '');
         await AsyncStorage.setItem('salaProfessor', resposta.sala || '');
 
-
         if (resposta.nome) {
           await AsyncStorage.setItem('nomeProfessor', resposta.nome);
-
-        } else {
         }
+
         await AsyncStorage.setItem('emailProfessor', email);
         await AsyncStorage.setItem('senhaProfessor', senha);
-        //Alert.alert('Sucesso', 'Login realizado com sucesso!');
+
         navigation.navigate('HomeScreen');
       } else {
         Alert.alert('Erro', resposta.message || 'Credenciais inválidas.');
@@ -50,46 +58,58 @@ export default function LoginScreen() {
     }
   };
 
-return (
-  <KeyboardAvoidingView
-    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    style={styles.container}
-    keyboardVerticalOffset={Platform.OS === 'ios' ? 40 : 0} // Ajuste este valor conforme necessário
-  >
-    <View style={styles.logoContainer}>
-      
-      <Image source={LogoImage} style={styles.logo} resizeMode="contain" />
-    </View>
-    <Text style={styles.logoText}>SISTEMA DE GERENCIAMENTO ESCOLAR</Text>
-    <Text style={styles.title}>Login</Text>
+  return (
 
-    <TextInput
-      style={styles.input}
-      placeholder="📧 Email"
-      value={email}
-      onChangeText={setEmail}
-      autoCapitalize="none"
-      keyboardType="email-address"
-    />
+    <LinearGradient colors={['#FDE910', '#2196F3']} style={{ flex: 1 }}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1, justifyContent: 'center' }}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 40 : 0}
+      >
+        <View style={styles.container}>
+          <View style={styles.logoContainer}>
+            <Image source={LogoImage} style={styles.logo} resizeMode="cover" />
+            <Text style={styles.logoText}>SISTEMA DE GERENCIAMENTO ESCOLAR</Text>
+          </View>
+          <Text style={styles.title}>Bem-vindo!</Text> 
 
-    <TextInput
-      style={styles.input}
-      placeholder="🔒 Senha"
-      value={senha}
-      onChangeText={setSenha}
-      secureTextEntry
-    />
+          <TextInput
+            style={styles.input}
+            placeholder="E-mail" 
+            placeholderTextColor="#888" 
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            keyboardType="email-address"
+          />
 
-    {loading ? (
-      <>
-        <ActivityIndicator size="large" color="#6200ee" />
-        <Text style={styles.loadingText}>Carregando...</Text>
-      </>
-    ) : (
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Entrar</Text>
-      </TouchableOpacity>
-    )}
-  </KeyboardAvoidingView>
-);
+          <TextInput
+            style={styles.input}
+            placeholder="Senha"
+            placeholderTextColor="#888"
+            value={senha}
+            onChangeText={setSenha}
+            secureTextEntry
+          />
+
+          {loading ? (
+            <>
+              <ActivityIndicator size="large" color="#ffffff" />
+              <Text style={styles.loadingText}>Carregando...</Text>
+            </>
+          ) : (
+            <TouchableOpacity style={styles.button} onPress={handleLogin}>
+              <Text style={styles.buttonText}>Entrar</Text>
+            </TouchableOpacity>
+          )}
+
+          {/* Adicionei um botão de "Esqueceu a senha?" para um UX mais completo */}
+          <TouchableOpacity onPress={() => Alert.alert('Ops!', 'Funcionalidade "Esqueceu a senha?" em desenvolvimento!')} style={{ marginTop: 20 }}>
+            <Text style={{ color: '#ffffff', fontSize: 16, textDecorationLine: 'underline' }}>Esqueceu sua senha?</Text>
+          </TouchableOpacity>
+
+        </View>
+      </KeyboardAvoidingView>
+    </LinearGradient>
+  );
 }

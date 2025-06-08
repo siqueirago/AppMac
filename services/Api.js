@@ -154,7 +154,7 @@ export const editarAluno = async (aluno) => {
             turma: aluno.turma,
             escola: aluno.escola,
             sala: aluno.sala,
-            ...photoPayload, // Espalha as propriedades de foto/fotoBase64 aqui
+            ...photoPayload, // Espalha o objeto photoPayload aqui
         };
 
         console.log('API Request (editarAluno) - Body sendo enviado:', JSON.stringify(requestBody));

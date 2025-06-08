@@ -1,8 +1,9 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
-import { Easing } from 'react-native'; // <--- ADICIONE ESTA LINHA!
+import { createStackNavigator, CardStyleInterpolators } from '@react-navigation/stack'; // Importe CardStyleInterpolators
+import { Easing } from 'react-native'; // Importe Easing para transições personalizadas
 
+// Importe suas telas
 import LoginScreen from '../screens/LoginScreen';
 import HomeScreen from '../screens/HomeScreen';
 import ListaAlunosScreen from '../screens/ListaAlunosScreen';
@@ -10,10 +11,10 @@ import EditAlunoScreen from '../screens/EditAlunoScreen';
 import AddAlunoScreen from '../screens/AddAlunoScreen';
 import AlunoDetalhesScreen from '../screens/AlunoDetalhesScreen';
 import AnotacaoAlunoScreen from '../screens/AnotacaoAlunoScreen';
-import GerenciarProfessoresScreen from '../screens/GerenciarProfessoresScreen';
+import ProfessoresScreen from '../screens/ProfessoresScreen';
 import RelatorioGeralScreen from '../screens/RelatorioGeralScreen';
 import ListaAlunosPorSalaScreen from '../screens/ListaAlunosPorSalaScreen';
-import RelatorioScreen from '../screens/RelatorioScreen';
+import GraficosScreen from '../screens/GraficosScreen';
 
 
 const Stack = createStackNavigator();
@@ -21,49 +22,135 @@ const Stack = createStackNavigator();
 export default function AppNavigator() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="LoginScreen">
-        <Stack.Screen name="LoginScreen" component={LoginScreen} options={{ headerShown: false }} />
+      <Stack.Navigator
+        initialRouteName="LoginScreen"
+        screenOptions={{
+          // Estilo de cabeçalho padrão para todas as telas, a menos que sobrescrito
+          headerStyle: {
+            backgroundColor: '#2196F3', // Cor de fundo do cabeçalho (azul vibrante)
+            elevation: 0, // Remove sombra no Android
+            shadowOpacity: 0, // Remove sombra no iOS
+            borderBottomWidth: 0, // Remove linha inferior
+          },
+          headerTintColor: '#ffffff', // Cor do texto e ícones do cabeçalho
+          headerTitleStyle: {
+            fontWeight: 'bold',
+            fontSize: 20,
+          },
+          headerBackTitleVisible: false, // Oculta o título da tela anterior no iOS
+          headerTitleAlign: 'center', // Centraliza o título
+
+          // Configurações de transição padrão para todas as telas
+          // Usaremos um cardStyleInterpolator mais genérico para slide
+          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS, // Transição de slide horizontal padrão do iOS
+          transitionSpec: {
+            open: { animation: 'timing', config: { duration: 300, easing: Easing.out(Easing.ease) } },
+            close: { animation: 'timing', config: { duration: 300, easing: Easing.in(Easing.ease) } },
+          },
+          gestureEnabled: true, // Habilita o gesto de voltar (swipe)
+          gestureDirection: 'horizontal', // Direção do gesto
+        }}
+      >
+        <Stack.Screen
+          name="LoginScreen"
+          component={LoginScreen}
+          options={{
+            headerShown: false, // Login não terá cabeçalho
+          }}
+        />
+
         <Stack.Screen
           name="HomeScreen"
           component={HomeScreen}
           options={{
-            headerTransparent: true,
-            headerTitle: '',
-            headerTintColor: '#fff',
-            headerBackTitleVisible: false,
-
-            ...TransitionPresets.FadeTransition,
+            headerShown: false, // HomeScreen não terá cabeçalho, já que tem seu próprio design
+            // As transições personalizadas já estavam aqui, vamos mantê-las se for o desejo
+            // Ou remover para usar a transição padrão definida em screenOptions
+            // Mantendo a transição personalizada de slide vertical com fade da tela anterior:
             cardStyleInterpolator: ({ current, layouts }) => {
               return {
                 cardStyle: {
                   opacity: current.progress,
                   transform: [
                     {
-                      translateX: current.progress.interpolate({
+                      translateY: current.progress.interpolate({
                         inputRange: [0, 1],
-                        outputRange: [layouts.screen.width, 0],
+                        outputRange: [layouts.screen.height, 0], // Slide de baixo para cima
                       }),
                     },
                   ],
                 },
               };
             },
-            gestureDirection: 'vertical',
+            gestureDirection: 'vertical', // Gesto de voltar para baixo
             gestureEnabled: true,
-
           }}
         />
-        <Stack.Screen name="ListaAlunosScreen" component={ListaAlunosScreen} options={{ title: 'Lista de Alunos' }} />
-        <Stack.Screen name="AddAlunoScreen" component={AddAlunoScreen} options={{ title: '' }} />
-        <Stack.Screen name="EditAlunoScreen" component={EditAlunoScreen} options={{ title: '' }} />
-        <Stack.Screen name="AlunoDetalhesScreen" component={AlunoDetalhesScreen} options={{ title: '' }} />
-        <Stack.Screen name="AnotacaoAlunoScreen" component={AnotacaoAlunoScreen} options={{ title: '' }} />
-        <Stack.Screen name="GerenciarProfessoresScreen" component={GerenciarProfessoresScreen} options={{ title: '' }} />
-        <Stack.Screen name="RelatorioGeralScreen" component={RelatorioGeralScreen} options={{ title: '📝 Relatório Geral' }} />
-        <Stack.Screen name="ListaAlunosPorSalaScreen" component={ListaAlunosPorSalaScreen} options={{ title: '' }} />
-        <Stack.Screen name="RelatorioScreen" component={RelatorioScreen} options={{ title: '📊 Representação Gráfica' }} />
 
-        {/* Adicione outras telas aqui conforme necessário */}
+        <Stack.Screen
+          name="ListaAlunosScreen"
+          component={ListaAlunosScreen}
+          options={{
+            title: 'Lista de Alunos', // Título que aparece no cabeçalho
+          }}
+        />
+
+        <Stack.Screen
+          name="AddAlunoScreen"
+          component={AddAlunoScreen}
+          options={{
+            title: 'Adicionar Aluno', // Título para a tela de adicionar aluno
+          }}
+        />
+        <Stack.Screen
+          name="EditAlunoScreen"
+          component={EditAlunoScreen}
+          options={{
+            title: 'Editar Aluno', // Título para a tela de editar aluno
+          }}
+        />
+        <Stack.Screen
+          name="AlunoDetalhesScreen"
+          component={AlunoDetalhesScreen}
+          options={{
+            title: 'Detalhes do Aluno', // Título para a tela de detalhes
+          }}
+        />
+        <Stack.Screen
+          name="AnotacaoAlunoScreen"
+          component={AnotacaoAlunoScreen}
+          options={{
+            title: 'Anotações', // Título para a tela de anotações
+          }}
+        />
+        <Stack.Screen
+          name="ProfessoresScreen"
+          component={ProfessoresScreen}
+          options={{
+            title: 'Gerenciar Professores', // Título
+          }}
+        />
+        <Stack.Screen
+          name="RelatorioGeralScreen"
+          component={RelatorioGeralScreen}
+          options={{
+            title: 'Relatório Geral', // Título sem o ícone no código
+          }}
+        />
+        <Stack.Screen
+          name="ListaAlunosPorSalaScreen"
+          component={ListaAlunosPorSalaScreen}
+          options={{
+            title: 'Alunos por Sala', // Título
+          }}
+        />
+        <Stack.Screen
+          name="GraficosScreen"
+          component={GraficosScreen}
+          options={{
+            title: 'Representação Gráfica', // Título sem o ícone no código
+          }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

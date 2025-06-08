@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, FlatList, ActivityIndicator, Alert, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, Alert, TouchableOpacity, Image } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
-import { buscarAlunos, buscarAlunosPorSala, excluirAluno } from '../services/Api'; // Importe excluirAluno
-import styles from '../styles/ListAlunosStyles'; // Certifique-se de que este caminho está correto
+import { buscarAlunos, buscarAlunosPorSala, excluirAluno } from '../services/Api';
+import styles from '../styles/ListAlunosStyles'; // Caminho para o novo arquivo de estilos
+import { LinearGradient } from 'expo-linear-gradient'; // Importar LinearGradient
 
 export default function ListaAlunosScreen() {
   const [alunos, setAlunos] = useState([]);
@@ -12,23 +13,52 @@ export default function ListaAlunosScreen() {
   const [perfil, setPerfil] = useState('');
   const [professorNome, setProfessorNome] = useState('');
   const [salaProfessor, setSalaProfessor] = useState('');
-  const [deletingId, setDeletingId] = useState(null); // Novo estado: ID do aluno sendo excluído
+  const [deletingId, setDeletingId] = useState(null);
   const navigation = useNavigation();
 
+  // MUDANÇA AQUI: Ajuste no uso de useFocusEffect com useCallback e função async interna
   useFocusEffect(
     useCallback(() => {
-      carregarDadosTela();
-    }, [])
+      const carregarDadosTelaAsync = async () => { // Define a função async interna
+        setLoading(true);
+        try {
+          const perfilSalvo = await AsyncStorage.getItem('perfilUsuario');
+          const sala = await AsyncStorage.getItem('salaProfessor');
+          setPerfil(perfilSalvo);
+          setSalaProfessor(sala || '');
+
+          let data;
+          if (perfilSalvo === 'Diretor') {
+            data = await buscarAlunos();
+          } else {
+            data = await buscarAlunosPorSala(sala);
+          }
+
+          if (Array.isArray(data)) {
+            setAlunos(data);
+          } else {
+            console.warn('Dados recebidos da API não são um array:', data);
+            setAlunos([]);
+          }
+        } catch (error) {
+          console.error("Erro ao carregar alunos (carregarDadosTela):", error);
+          Alert.alert('Erro', 'Não foi possível carregar os alunos. Tente novamente.');
+          setAlunos([]);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      carregarDadosTelaAsync(); // Chama a função async imediatamente
+
+      // Retorno de limpeza (opcional)
+      return () => {
+        // Nenhuma limpeza específica necessária aqui para este caso
+      };
+    }, []) // Dependências vazias, pois `perfilSalvo` e `sala` são lidas de `AsyncStorage`
   );
 
-  useEffect(() => {
-    const carregarSala = async () => {
-      const sala = await AsyncStorage.getItem('salaProfessor');
-      setSalaProfessor(sala || '');
-    };
-    carregarSala();
-  }, []);
-
+  // O resto do seu código permanece igual
   useEffect(() => {
     const carregarNomeProfessor = async () => {
       const nome = await AsyncStorage.getItem('nomeProfessor');
@@ -36,38 +66,6 @@ export default function ListaAlunosScreen() {
     };
     carregarNomeProfessor();
   }, []);
-
-  const carregarDadosTela = async () => {
-    setLoading(true);
-    try {
-      const perfilSalvo = await AsyncStorage.getItem('perfilUsuario');
-      const sala = await AsyncStorage.getItem('salaProfessor');
-      setPerfil(perfilSalvo);
-      setSalaProfessor(sala || '');
-
-      let data;
-      if (perfilSalvo === 'Diretor') {
-        data = await buscarAlunos();
-      } else {
-        data = await buscarAlunosPorSala(sala);
-      }
-      
-
-      if (Array.isArray(data)) {
-        
-      } else {
-        console.log('Dados não são um array.');
-      }
-
-
-      setAlunos(data);
-    } catch (error) {
-      console.error("Erro ao carregar alunos (carregarDadosTela):", error);
-      Alert.alert('Erro', 'Não foi possível carregar os alunos.');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const irParaDetalhes = (aluno) => {
     navigation.navigate('AnotacaoAlunoScreen', { aluno: aluno, professor: professorNome });
@@ -124,25 +122,25 @@ export default function ListaAlunosScreen() {
         <Text style={styles.turma}>{item.turma} - {item.sala}</Text>
 
         <View style={styles.buttonContainer}>
-          <TouchableOpacity 
-                style={styles.detailsButton} 
-                onPress={() => irParaDetalhes(item)}
-                disabled={deletingId !== null}
+          <TouchableOpacity
+            style={[styles.actionButton, styles.detailsButton]}
+            onPress={() => irParaDetalhes(item)}
+            disabled={deletingId !== null}
           >
-            <Text style={styles.buttonText}>Avaliar </Text>
+            <Text style={styles.buttonText}>Avaliar</Text>
           </TouchableOpacity>
-          <TouchableOpacity 
-                style={styles.editButton} 
-                onPress={() => irParaEditar(item)}
-                disabled={deletingId !== null}
-              >
-                <Text style={styles.buttonText}>Editar</Text>
-              </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.actionButton, styles.editButton]}
+            onPress={() => irParaEditar(item)}
+            disabled={deletingId !== null}
+          >
+            <Text style={styles.buttonText}>Editar</Text>
+          </TouchableOpacity>
 
           {perfil === 'Diretor' && (
             <>
               <TouchableOpacity
-                style={styles.deleteButton} // Usando estilo local para exclusão
+                style={[styles.actionButton, styles.deleteButton]}
                 onPress={() => handleExcluirAluno(item.id, item.nome)}
                 disabled={deletingId !== null}
               >
@@ -161,35 +159,62 @@ export default function ListaAlunosScreen() {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#6200ee" />
-        <Text style={styles.loadingText}>Espere um pouquinho...</Text>
-      </View>
+      <LinearGradient colors={['#FDE910', '#2196F3']} style={styles.gradientBackground}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#ffffff" />
+          <Text style={styles.loadingText}>Carregando alunos...</Text>
+        </View>
+      </LinearGradient>
     );
   }
 
-  const getContagemAlunos = () => {
-    if (perfil === 'Diretor') {
-      return <Text style={styles.subHeaderTitle}>Total de Alunos: {alunos.length}</Text>;
-    } else if (perfil === 'Professor' && salaProfessor) {
-      const alunosDaSala = alunos.filter(aluno => aluno.sala === salaProfessor);
-      return <Text style={styles.headerTitle}>Sala {salaProfessor}: {alunosDaSala.length} Alunos</Text>;
-    } else {
-      return <Text style={styles.subHeaderTitle}>Lista de Alunos</Text>;
-    }
-  };
+  // Se não houver alunos, exibe uma mensagem
+  if (!loading && alunos.length === 0) {
+    return (
+      <LinearGradient colors={['#4CAF50', '#2196F3']} style={styles.gradientBackground}>
+        <View style={styles.container}>
+          <View style={styles.headerContainer}>
+            {professorNome && <Text style={styles.headerTitle}>Professor(a): {professorNome}</Text>}
+            <Text style={styles.subHeaderTitle}>Nenhum aluno encontrado.</Text>
+          </View>
+          <View style={styles.noStudentsContainer}>
+            <MaterialIcons name="sentiment-dissatisfied" size={50} color="#ffffff" style={{ marginBottom: 10 }} />
+            <Text style={styles.noStudentsText}>Parece que não há alunos para exibir no momento.</Text>
+            {perfil === 'Diretor' && (
+              <TouchableOpacity
+                style={[styles.actionButton, styles.detailsButton, { marginTop: 20 }]}
+                onPress={() => navigation.navigate('AddAlunoScreen')}
+              >
+                <Text style={styles.buttonText}>Adicionar Novo Aluno</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+      </LinearGradient>
+    );
+  }
 
   return (
-    <View style={styles.container}>
-      {professorNome && <Text style={styles.headerTitle}>Professor(a): {professorNome}</Text>}
-      <Text style={styles.alunoCount}>{getContagemAlunos()}</Text>
-      <FlatList
-        data={alunos}
-        keyExtractor={(item, index) => (item && item.id !== undefined && item.id !== null) ? item.id.toString() : index.toString()} // <--- AJUSTADO PARA SER MAIS ROBUSTO
-        renderItem={renderItem}
-        contentContainerStyle={{ paddingBottom: 20 }}
-      />
-    </View>
+    <LinearGradient colors={['#4CAF50', '#2196F3']} style={styles.gradientBackground}>
+      <View style={styles.container}>
+        <View style={styles.headerContainer}>
+          {professorNome && <Text style={styles.headerTitle}>Professor(a): {professorNome}</Text>}
+          {perfil === 'Diretor' ? (
+            <Text style={styles.subHeaderTitle}>Total de Alunos: {alunos.length}</Text>
+          ) : (
+            <Text style={styles.subHeaderTitle}>
+              Alunos da Sala {salaProfessor || 'Não Definida'}: {alunos.length}
+            </Text>
+          )}
+        </View>
+
+        <FlatList
+          data={alunos}
+          keyExtractor={(item) => item.id ? item.id.toString() : Math.random().toString()}
+          renderItem={renderItem}
+          contentContainerStyle={{ paddingBottom: 20 }}
+        />
+      </View>
+    </LinearGradient>
   );
 }
-

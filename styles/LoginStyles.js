@@ -1,67 +1,86 @@
-
+// styles/ModernLoginStyles.js
 import { StyleSheet } from 'react-native';
 
-const styles = StyleSheet.create({
+const ModernLoginStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ede7f6',
     justifyContent: 'center',
-    padding: 20,
-    
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginTop: 20,
-    marginBottom: 30,
-    color: 'green',
-    textAlign: 'center',
-  },
-  input: {
-    backgroundColor: '#fff',
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: '#d1c4e9',
-    fontSize: 16,
-  },
-  button: {
-    backgroundColor: '#673ab7',
-    padding: 15,
-    borderRadius: 8,
     alignItems: 'center',
-  },
-  buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 18,
+    paddingHorizontal: 30, // Espaçamento horizontal
   },
   logoContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    marginBottom: 40, // Mais espaço abaixo do logo
     alignItems: 'center',
-    
   },
   logo: {
-    width: 200,
-    height: 200,
-    alignSelf: 'center',
-    justifyContent: 'center',
+    width: 150, // Tamanho do logo
+    height: 150,
+    borderRadius: 75, // Borda arredondada para o logo
+    borderWidth: 3,
+    borderColor: '#ffffff', // Borda branca
+    shadowColor: '#000', // Sombra para o logo
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 10,
   },
   logoText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#673ab7',
+    color: '#ffffff',
+    marginTop: 15, // Espaçamento acima do texto do logo
+    textShadowColor: 'rgba(0, 0, 0, 0.4)', // Sombra para o texto
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
     textAlign: 'center',
-    marginBottom: 10,
   },
-
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#ffffff',
+    marginBottom: 30, // Mais espaço abaixo do título
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 5,
+  },
+  input: {
+    width: '100%',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)', // Fundo mais translúcido
+    borderRadius: 25, // Bordas bem arredondadas
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    fontSize: 16,
+    color: '#333', // Cor do texto mais escura
+    marginBottom: 20, // Espaçamento entre os inputs
+    shadowColor: '#000', // Sombra para os inputs
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  button: {
+    width: '100%',
+    backgroundColor: '#3498db', // Cor de botão mais vibrante (azul)
+    borderRadius: 25,
+    paddingVertical: 15,
+    alignItems: 'center',
+    marginTop: 20, // Espaçamento acima do botão
+    shadowColor: '#000', // Sombra para o botão
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 10,
+  },
+  buttonText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#ffffff',
+  },
   loadingText: {
+    color: '#ffffff',
     marginTop: 10,
     fontSize: 16,
-    color: '#6200ee',
-    textAlign: 'center',
   },
 });
-export default styles;
+
+export default ModernLoginStyles;

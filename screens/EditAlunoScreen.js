@@ -3,20 +3,20 @@ import {
   View,
   Text,
   TextInput,
-  Button,
-  StyleSheet,
   Alert,
   ScrollView,
   Image,
   TouchableOpacity,
   ActivityIndicator,
-  Platform // Adicione Platform aqui se não estiver
+  Platform,
+  KeyboardAvoidingView, 
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import styles from '../styles/EditAlunosStyles';
-import { editarAluno } from '../services/Api'; // REMOVA 'uploadFoto' daqui
+import { editarAluno } from '../services/Api';
 import * as ImagePicker from 'expo-image-picker';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function EditAlunoScreen() {
   const route = useRoute();
@@ -27,11 +27,10 @@ export default function EditAlunoScreen() {
   const [turma, setTurma] = useState(aluno.turma);
   const [escola, setEscola] = useState(aluno.escola);
   const [sala, setSala] = useState(aluno.sala);
-  const [foto, setFoto] = useState(aluno.foto); // Estado para a URL da foto ATUAL (ou o URI temporário da nova foto para preview)
-  const [novaFotoBase64, setNovaFotoBase64] = useState(null); // NOVO ESTADO para o Base64 da foto recém-selecionada/tirada
-  const [uploading, setUploading] = useState(false); // Estado para controlar o carregamento/envio da imagem
+  const [foto, setFoto] = useState(aluno.foto);
+  const [novaFotoBase64, setNovaFotoBase64] = useState(null);
+  const [uploading, setUploading] = useState(false);
 
-  // Solicitar permissões de mídia ao carregar a tela
   useEffect(() => {
     (async () => {
       if (Platform.OS !== 'web') {
@@ -47,31 +46,27 @@ export default function EditAlunoScreen() {
     })();
   }, []);
 
-  // Função para escolher imagem da galeria
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [4, 3],
-      quality: 0.5, // Reduzir a qualidade para upload mais rápido
-      base64: true, // Importante para obter como Base64
+      quality: 0.5,
+      base64: true,
     });
 
-    console.log('Resultado do ImagePicker (Galeria):', result); // Log para depuração
+    console.log('Resultado do ImagePicker (Galeria):', result);
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
       const selectedAsset = result.assets[0];
-      
+
       if (selectedAsset.base64) {
-        // Formata o Base64 para incluir o prefixo completo (data:image/jpeg;base64,...)
-        // Isso é importante para o Apps Script.
-        const fileType = selectedAsset.type || 'image'; // 'image' ou 'video'
-        // Tenta inferir a extensão do arquivo da URI ou assume 'jpeg'
-        const fileExtension = selectedAsset.uri ? selectedAsset.uri.split('.').pop() : 'jpeg'; 
+        const fileType = selectedAsset.type || 'image';
+        const fileExtension = selectedAsset.uri ? selectedAsset.uri.split('.').pop() : 'jpeg';
         const formattedBase64 = `data:${fileType}/${fileExtension};base64,${selectedAsset.base64}`;
 
-        setNovaFotoBase64(formattedBase64); // Armazena o Base64 para envio posterior
-        setFoto(selectedAsset.uri); // Define o URI local para exibição no preview
+        setNovaFotoBase64(formattedBase64);
+        setFoto(selectedAsset.uri);
         Alert.alert('Foto selecionada', 'A nova foto será salva ao clicar em "Salvar Alterações".');
       } else {
         console.error('Base64 não encontrado no asset da galeria.');
@@ -85,28 +80,27 @@ export default function EditAlunoScreen() {
     }
   };
 
-  // Função para tirar foto com a câmera
   const takePhoto = async () => {
     let result = await ImagePicker.launchCameraAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [4, 3],
       quality: 0.5,
-      base64: true, // Importante para obter como Base64
+      base64: true,
     });
 
-    console.log('Resultado do ImagePicker (Câmera):', result); // Log para depuração
+    console.log('Resultado do ImagePicker (Câmera):', result);
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
       const selectedAsset = result.assets[0];
-      
+
       if (selectedAsset.base64) {
         const fileType = selectedAsset.type || 'image';
         const fileExtension = selectedAsset.uri ? selectedAsset.uri.split('.').pop() : 'jpeg';
         const formattedBase64 = `data:${fileType}/${fileExtension};base64,${selectedAsset.base64}`;
 
-        setNovaFotoBase64(formattedBase64); // Armazena o Base64 para envio posterior
-        setFoto(selectedAsset.uri); // Define o URI local para exibição no preview
+        setNovaFotoBase64(formattedBase64);
+        setFoto(selectedAsset.uri);
         Alert.alert('Foto capturada', 'A nova foto será salva ao clicar em "Salvar Alterações".');
       } else {
         console.error('Base64 não encontrado no asset da câmera.');
@@ -120,10 +114,9 @@ export default function EditAlunoScreen() {
     }
   };
 
-  // Função para remover a foto (apenas limpa o preview e o Base64 a ser enviado)
   const clearPhoto = () => {
-    setFoto(''); // Limpa o preview
-    setNovaFotoBase64(null); // Garante que nenhuma nova foto será enviada
+    setFoto('');
+    setNovaFotoBase64(null);
     Alert.alert('Foto Removida', 'A foto foi removida do formulário. Salve as alterações para remover da planilha.');
   };
 
@@ -133,7 +126,7 @@ export default function EditAlunoScreen() {
       return;
     }
 
-    setUploading(true); // Ativa o indicador de upload ao iniciar a chamada à API
+    setUploading(true);
     try {
       const alunoParaEditar = {
         id: aluno.id,
@@ -141,14 +134,12 @@ export default function EditAlunoScreen() {
         turma,
         escola,
         sala,
-        // Se novaFotoBase64 existe, ela será enviada para o Apps Script
-        // Se não, o Apps Script vai usar o 'foto' existente (a URL que veio do aluno original)
-        fotoBase64: novaFotoBase64, // Envia o Base64 da nova foto, se houver
-        foto: novaFotoBase64 ? null : foto // Se tem nova foto Base64, foto é null. Caso contrário, envia a URL existente.
+        fotoBase64: novaFotoBase64,
+        foto: novaFotoBase64 ? null : foto
       };
 
-      console.log('Dados enviados para editarAluno (Api.js):', alunoParaEditar); // Log para depuração
-      
+      console.log('Dados enviados para editarAluno (Api.js):', alunoParaEditar);
+
       const resultado = await editarAluno(alunoParaEditar);
 
       if (resultado.success) {
@@ -162,83 +153,114 @@ export default function EditAlunoScreen() {
       console.error("Erro ao salvar alterações do aluno:", error);
       Alert.alert('Erro', 'Erro ao editar aluno. Verifique a conexão ou tente novamente.');
     } finally {
-      setUploading(false); // Desativa o indicador de upload ao final da operação
+      setUploading(false);
     }
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.title}>Editar Aluno</Text>
+    <LinearGradient colors={['#FDE910', '#2196F3']} style={styles.gradientBackground}>
+      {/* Adicione o KeyboardAvoidingView aqui */}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'} // 'padding' para iOS, 'height' para Android
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : -50} // Ajuste o offset conforme a necessidade
+      >
+        <ScrollView contentContainerStyle={styles.container}>
+          <Text style={styles.title}>Editar Aluno</Text>
 
-      
-      <View style={styles.imageContainer}>
-        {foto ? (
-          <Image source={{ uri: foto }} style={styles.imagePreview} />
-        ) : (
-          <Image source={require('../assets/usuario.png')} style={styles.imagePreview} />
-        )}
-      </View>
+          <View style={styles.card}>
+            <View style={styles.imageSection}>
+              <View style={styles.imagePreviewContainer}>
+                {foto ? (
+                  <Image source={{ uri: foto }} style={styles.imagePreview} />
+                ) : (
+                  <Image source={require('../assets/usuario.png')} style={styles.defaultImage} />
+                )}
+              </View>
 
-      
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.imageButton} onPress={pickImage} disabled={uploading}>
-          <Text style={styles.buttonText}>📂 Galeria</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.imageButton} onPress={takePhoto} disabled={uploading}>
-          <Text style={styles.buttonText}>📸 Câmera</Text>
-        </TouchableOpacity>
-      </View>
+              <View style={styles.imageButtonContainer}>
+                <TouchableOpacity style={styles.imageButton} onPress={pickImage} disabled={uploading}>
+                  <MaterialIcons name="folder" size={24} color="#fff" style={styles.iconStyle} />
+                  <Text style={styles.buttonText}>Galeria</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.imageButton} onPress={takePhoto} disabled={uploading}>
+                  <MaterialIcons name="camera-alt" size={24} color="#fff" style={styles.iconStyle} />
+                  <Text style={styles.buttonText}>Câmera</Text>
+                </TouchableOpacity>
+              </View>
 
-      {uploading && (
-        <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="small" color="#0000ff" />
-          <Text style={styles.loadingText}>Enviando dados...</Text> 
-        </View>
-      )}
+              {foto ? (
+                <TouchableOpacity style={[styles.imageButton, styles.clearButton]} onPress={clearPhoto} disabled={uploading}>
+                  <MaterialIcons name="delete-forever" size={20} color="#fff" style={styles.iconStyle} />
+                  <Text style={styles.buttonText}>Remover Foto</Text>
+                </TouchableOpacity>
+              ) : null}
+            </View>
+          </View>
 
-      
-      <TextInput
-        style={styles.input}
-        placeholder="URL da Foto (Gerada automaticamente)"
-        value={foto} // Exibe a URL atual ou a URI local da nova foto
-        onChangeText={setFoto}
-        editable={false} // Não permitir edição manual, pois é gerada
-      />
+          <View style={styles.card}>
+            <View style={styles.input}>
+              <MaterialIcons name="person" size={24} color="#666" style={styles.inputIcon} />
+              <TextInput
+                style={styles.textInputStyle}
+                placeholder="Nome"
+                value={nome}
+                onChangeText={setNome}
+                editable={!uploading}
+              />
+            </View>
+            <View style={styles.input}>
+              <MaterialIcons name="class" size={24} color="#666" style={styles.inputIcon} />
+              <TextInput
+                style={styles.textInputStyle}
+                placeholder="Turma"
+                value={turma}
+                onChangeText={setTurma}
+                editable={!uploading}
+              />
+            </View>
+            <View style={styles.input}>
+              <MaterialIcons name="school" size={24} color="#666" style={styles.inputIcon} />
+              <TextInput
+                style={styles.textInputStyle}
+                placeholder="Escola"
+                value={escola}
+                onChangeText={setEscola}
+                editable={!uploading}
+              />
+            </View>
+            <View style={styles.input}>
+              <MaterialIcons name="meeting-room" size={24} color="#666" style={styles.inputIcon} />
+              <TextInput
+                style={styles.textInputStyle}
+                placeholder="Sala"
+                value={sala}
+                onChangeText={setSala}
+                editable={!uploading}
+              />
+            </View>
+          </View>
 
-      {foto ? (
-        <TouchableOpacity style={[styles.imageButton, styles.clearButton]} onPress={clearPhoto} disabled={uploading}>
-          <Text style={styles.buttonText}>Remover Foto</Text>
-        </TouchableOpacity>
-      ) : null}
+          <TouchableOpacity
+            style={styles.saveButton}
+            onPress={handleEditar}
+            disabled={uploading}
+          >
+            {uploading ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <Text style={styles.saveButtonText}>Salvar Alterações</Text>
+            )}
+          </TouchableOpacity>
 
-      
-      <TextInput
-        style={styles.input}
-        placeholder="Nome"
-        value={nome}
-        onChangeText={setNome}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Turma"
-        value={turma}
-        onChangeText={setTurma}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Escola"
-        value={escola}
-        onChangeText={setEscola}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Sala"
-        value={sala}
-        onChangeText={setSala}
-      />
-
-      <Button title="Salvar Alterações" onPress={handleEditar} />
-    </ScrollView>
+          {uploading && (
+            <View style={styles.loadingOverlay}>
+              <ActivityIndicator size="large" color="#4CAF50" />
+              <Text style={styles.loadingText}>Salvando alterações...</Text>
+            </View>
+          )}
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </LinearGradient>
   );
 }
-
